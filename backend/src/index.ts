@@ -15,7 +15,9 @@ app.use("/auth", OAuthRouter);
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
-
+app.get("/test", (req, res) => {
+  res.send("OK");
+});
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

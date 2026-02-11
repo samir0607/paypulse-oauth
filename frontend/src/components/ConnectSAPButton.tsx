@@ -11,7 +11,6 @@ export const ConnectButton = ({type}: {type: "sap" | "oracle"}) => {
       window.location.href = url;
     } catch (error) {
       console.error("SAP connection failed:", error);
-      alert("Failed to connect to SAP");
     } finally {
       setLoading(false);
     }
