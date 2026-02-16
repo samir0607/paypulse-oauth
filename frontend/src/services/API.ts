@@ -1,6 +1,6 @@
 import axios from "axios";
 export const APIv1 = axios.create({
-  baseURL: import.meta.env.BASE_URL
+  baseURL: import.meta.env.VITE_BACKEND_BASE_URL
 })
 
 export const integrateOAuth = async (
