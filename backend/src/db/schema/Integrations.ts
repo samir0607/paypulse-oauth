@@ -8,7 +8,7 @@ export const IntegrationTable = mysqlTable("integrations", {
 	company_id: int()
 		.references(() => companyTable.company_id, {onDelete: "cascade"})
 		.notNull(),
-	type: varchar({ length: 255, enum: systems }).notNull(),
+	type: varchar({ length: 50 }).$type<(typeof systems)[number]>().notNull(),
 	client_id: varchar({ length: 255 }).notNull(),
 	client_secret: varchar({ length: 500 }).notNull(),
 	base_url: varchar({ length: 255 }).notNull(),

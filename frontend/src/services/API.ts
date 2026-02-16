@@ -27,7 +27,7 @@ export const getIntegrationStatus = async (
   companyId: number
 ) => {
   const { data } = await APIv1.get(
-    `/integrations/${provider}/status`,
+    `/auth/${provider}/status`,
     { params: { companyId } }
   );
   return data.data.connected;

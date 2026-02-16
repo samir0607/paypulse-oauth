@@ -10,7 +10,10 @@ export class IntegrationRepository {
 				.values(integration)
 				.$returningId()
 				.execute();
-		} catch (error) {
+		} catch (error: any) {
+			if (error?.code === 'ER_NO_REFERENCED_ROW_2' || error?.message?.includes('foreign key')) {
+				throw new Error(`Company with ID ${integration.company_id} does not exist. Please create the company first.`);
+			}
 			throw error;
 		}
 	}

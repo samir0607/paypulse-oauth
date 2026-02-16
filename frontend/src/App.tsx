@@ -6,8 +6,8 @@ function App() {
     <>
       <div className="card">
         <div>Integrate</div>
-        <ConnectButton companyId={1} provider='oracle'/>
-        <ConnectButton companyId={1} provider='sap'/>
+        <ConnectButton companyId={3} provider='oracle'/>
+        <ConnectButton companyId={3} provider='sap'/>
       </div>
     </>
   )
