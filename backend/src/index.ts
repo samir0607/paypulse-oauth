@@ -13,7 +13,7 @@ app.use(express.json());
 app.use("/auth", OAuthRouter);
 
 app.get("/", (req, res) => {
-  res.send("Backend running 🚀");
+  res.send("Backend running");
 });
 app.get("/test", (req, res) => {
   res.send("OK");

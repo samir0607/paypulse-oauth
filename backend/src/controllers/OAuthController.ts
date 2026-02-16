@@ -39,8 +39,6 @@ export default class OAuthController {
 
       if (result.isError()) throw new Error(result.getError());
 
-      // TODO Save tokens to DB
-
       res.redirect(`${process.env.FRONTEND_URL}/integration-success`);
 
     } catch (err) {
@@ -82,8 +80,6 @@ export default class OAuthController {
       );
 
       if (result.isError()) throw new Error(result.getError());
-
-      // TODO Save tokens to DB
 
       res.redirect(`${process.env.FRONTEND_URL}/integration-success`);
 
