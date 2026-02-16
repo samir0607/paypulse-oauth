@@ -1,13 +1,10 @@
 import { Router } from "express";
 import OAuthController from "../controllers/OAuthController";
 
-export const OAuthRouter = Router();
+const OAuthRouter = Router();
 
-OAuthRouter.get("/sap/url", OAuthController.getSAPAuthUrl);
-OAuthRouter.get("/oracle/url", OAuthController.getOracleAuthUrl);
+OAuthRouter.post("/:provider/integrate", OAuthController.integrate);
+OAuthRouter.get("/:provider/redirect", OAuthController.getAuthUrl);
+OAuthRouter.get("/:provider/callback", OAuthController.callback);
 
-OAuthRouter.get("/sap/callback", OAuthController.sapCallback);
-OAuthRouter.get("/oracle/callback", OAuthController.oracleCallback);
-
-OAuthRouter.post("/sap/integrate", OAuthController.integrateSAP);
-OAuthRouter.post("/oracle/integrate", OAuthController.integrateOracle);
+export default OAuthRouter;

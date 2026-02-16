@@ -2,79 +2,53 @@ import { Request, Response } from "express";
 import { OAuthService } from "../services/OAuthService";
 import ErrorHandler from "../handler/ErrorHandler";
 import { ResponseHandler } from "../handler/ResponseHandler";
-import { IntegrationRepository } from "../db/repository/IntegrationRepository";
 
+type Provider = "sap" | "oracle";
 
 export default class OAuthController {
-
-  public static async getSAPAuthUrl(req: Request, res: Response) {
-    try {
-      const companyId = req.body.companyId;
-
-      const callback = `${process.env.CURRENT_URL}/auth/sap/callback`;
-
-      const result = await OAuthService.getSAPRedirectURL(callback, companyId);
-
-      if (result.isError()) throw new Error(result.getError());
-
-      ResponseHandler.sendSuccessResponse(res, "URL Generated", {
-        url: result.getData(),
-      });
-
-    } catch (err) {
-      ErrorHandler(err, res);
-    }
+  private static getCallback(provider: Provider) {
+    return `${process.env.CURRENT_URL}/auth/${provider}/callback`;
   }
 
-  public static async sapCallback(req: Request, res: Response) {
+  public static async integrate(req: Request, res: Response) {
     try {
-      const { code, state } = req.query;
-
-      const callback = `${process.env.CURRENT_URL}/auth/sap/callback`;
-
-      const result = await OAuthService.handleSAPCallback(
-        code as string,
-        state as string,
-        callback
-      );
-
-      if (result.isError()) throw new Error(result.getError());
-
-      res.redirect(`${process.env.FRONTEND_URL}/integration-success`);
-
-    } catch (err) {
-      ErrorHandler(err, res);
-    }
-  }
-
-  public static async integrateSAP(req: Request, res: Response) {
-    try {
+      const provider = req.params.provider as Provider;
       const { companyId, client_id, client_secret, base_url } = req.body;
-      if(!companyId || !client_id || !client_secret || !base_url) {
-        throw new Error("companyId or client_id or client_secret or base_url is missing")
+
+      if (!companyId || !client_id || !client_secret || !base_url) {
+        throw new Error("Missing required integration fields");
       }
-      await IntegrationRepository.createIntegration({
-        company_id: companyId,
-        type: "sap",
+
+      await OAuthService.integrate(
+        provider,
+        companyId,
         client_id,
         client_secret,
-        base_url
-      });
-      ResponseHandler.sendSuccessResponse(res, "SAP credentials inserted");
-    } catch(error) {
-      ErrorHandler(error, res);
+        base_url,
+      );
+
+      ResponseHandler.sendSuccessResponse(
+        res,
+        `${provider.toUpperCase()} credentials inserted`,
+      );
+    } catch (err) {
+      ErrorHandler(err, res);
     }
   }
 
-  public static async getOracleAuthUrl(req: Request, res: Response) {
+  public static async getAuthUrl(req: Request, res: Response) {
     try {
-      const companyId = req.body.companyId;
+      const provider = req.params.provider as Provider;
+      const companyId = Number(req.query.companyId);
 
-      const callback = `${process.env.CURRENT_URL}/auth/oracle/callback`;
+      if (!companyId) throw new Error("companyId missing");
 
-      const result = await OAuthService.getOracleRedirectURL(
+      const callback = this.getCallback(provider);
+
+      const result = await OAuthService.getRedirectURL(
+        provider,
         callback,
-        companyId
+        companyId,
       );
 
       if (result.isError()) throw new Error(result.getError());
@@ -82,48 +56,32 @@ export default class OAuthController {
       ResponseHandler.sendSuccessResponse(res, "URL Generated", {
         url: result.getData(),
       });
-
     } catch (err) {
       ErrorHandler(err, res);
     }
   }
-  public static async oracleCallback(req: Request, res: Response) {
+
+  public static async callback(req: Request, res: Response) {
     try {
+      const provider = req.params.provider as Provider;
       const { code, state } = req.query;
 
-      const callback = `${process.env.CURRENT_URL}/auth/oracle/callback`;
+      if (!code || !state) throw new Error("Missing code/state");
 
-      const result = await OAuthService.handleOracleCallback(
+      const callback = this.getCallback(provider);
+
+      const result = await OAuthService.handleCallback(
+        provider,
         code as string,
         state as string,
-        callback
+        callback,
       );
 
       if (result.isError()) throw new Error(result.getError());
 
       res.redirect(`${process.env.FRONTEND_URL}/integration-success`);
-
     } catch (err) {
       ErrorHandler(err, res);
-    }
-  }
-
-  public static async integrateOracle(req: Request, res: Response) {
-    try {
-      const { companyId, client_id, client_secret, base_url } = req.body;
-      if(!companyId || !client_id || !client_secret || !base_url) {
-        throw new Error("companyId or client_id or client_secret or base_url is missing")
-      }
-      await IntegrationRepository.createIntegration({
-        company_id: companyId,
-        type: "oracle",
-        client_id,
-        client_secret,
-        base_url
-      });
-      ResponseHandler.sendSuccessResponse(res, "SAP credentials inserted");
-    } catch(error) {
-      ErrorHandler(error, res);
     }
   }
 }
