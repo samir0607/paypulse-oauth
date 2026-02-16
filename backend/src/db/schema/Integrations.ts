@@ -1,6 +1,5 @@
-import { int, mysqlTable, varchar, datetime } from "drizzle-orm/mysql-core";
+import { int, mysqlTable, varchar, timestamp } from "drizzle-orm/mysql-core";
 import { companyTable } from "./Company";
-import { sql } from "drizzle-orm";
 
 export const systems = ["oracle", "sap"] as const
 
@@ -14,10 +13,9 @@ export const IntegrationTable = mysqlTable("integrations", {
 	client_secret: varchar({ length: 500 }).notNull(),
 	base_url: varchar({ length: 255 }).notNull(),
 	status: varchar({ length: 255 }).default("ACTIVE"),
-	last_sync: datetime(),
-	created_at: datetime().default(sql`CURRENT TIMESTAMP`),
-	updated_at: datetime().default(sql`CURRENT TIMESTAMP`)
-		.$onUpdate(() => sql`CURRENT TIMESTAMP`)
+	last_sync: timestamp(),
+	created_at: timestamp().defaultNow(),
+	updated_at: timestamp().defaultNow().onUpdateNow()
 });
 
 export type Integration = typeof IntegrationTable.$inferSelect;
