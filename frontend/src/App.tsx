@@ -1,12 +1,13 @@
 import './App.css'
-import { ConnectButton } from './components/ConnectSAPButton'
+import { ConnectButton } from './components/ConnectButton'
 
 function App() {
   return (
     <>
       <div className="card">
-        <ConnectButton type="sap"/>
-        <ConnectButton type="oracle"/>
+        <div>Integrate</div>
+        <ConnectButton companyId={1} provider='oracle'/>
+        <ConnectButton companyId={1} provider='sap'/>
       </div>
     </>
   )
