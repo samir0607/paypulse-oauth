@@ -1,13 +1,23 @@
-export const APIv1 = "http://localhost:5010";
+import axios from "axios";
+export const APIv1 = axios.create({
+  baseURL: import.meta.env.BASE_URL
+})
 
-export const getSAPAuthUrl = async () => {
-  const res = await fetch(`${APIv1}/auth/sap/url`);
-  const data = await res.json();
-  return data.url;
+export const integrateOAuth = async (
+  provider: string,
+  payload: {
+    companyId: number;
+    client_id: string;
+    client_secret: string;
+    base_url: string;
+  }
+) => {
+  const { data } = await APIv1.post(`/auth/${provider}/integrate`, payload);
+  return data;
 };
 
-export const getOracleAuthUrl = async () => {
-  const res = await fetch(`${APIv1}/auth/oracle/url`);
-  const data = await res.json();
-  return data.url;
+
+export const getAuthUrl = async (provider: string, companyId: string) => {
+  const { data } = await APIv1.get(`/auth/${provider}/auth-url`, { params: { companyId } });
+  return data.data.url; 
 };
