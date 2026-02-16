@@ -1,6 +1,6 @@
 type OAuthStateData = {
-  system: "SAP" | "ORACLE";
-  companyId: string;
+  system: "sap" | "oracle";
+  companyId: number;
 };
 
 class OAuthStateStoreClass {

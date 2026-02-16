@@ -2,7 +2,7 @@ import { int, mysqlTable, varchar, datetime } from "drizzle-orm/mysql-core";
 import { companyTable } from "./Company";
 import { sql } from "drizzle-orm";
 
-const systems = ["oracle", "sap"] as const
+export const systems = ["oracle", "sap"] as const
 
 export const IntegrationTable = mysqlTable("integrations", {
 	id: int().primaryKey().autoincrement(),

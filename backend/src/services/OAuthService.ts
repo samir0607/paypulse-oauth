@@ -2,6 +2,7 @@ import axios from "axios";
 import { randomUUID } from "crypto";
 import { Result } from "../utils/Result";
 import { OAuthStateStore } from "../stores/OAuthStateStore";
+import { IntegrationRepository } from "../db/repository/IntegrationRepository";
 
 type GetRedirectError = "INVALID_CONFIG";
 type CallbackError = "INVALID_STATE" | "TOKEN_ERROR";
@@ -10,27 +11,27 @@ export class OAuthService {
 
   public static async getSAPRedirectURL(
     callbackUrl: string,
-    companyId: string
+    companyId: number
   ): Promise<Result<string, GetRedirectError>> {
 
-    if (!process.env.SAP_BASE_URL || !process.env.SAP_CLIENT_ID) {
-      return Result.error("INVALID_CONFIG");
+    const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, "sap");
+    if(!integration) {
+      throw new Error("Integration Not Found!");
     }
-
     const state = randomUUID();
 
     const params = {
       response_type: "code",
-      client_id: process.env.SAP_CLIENT_ID!,
+      client_id: integration.client_id,
       redirect_uri: callbackUrl,
       state,
     };
 
-    const url = new URL(`${process.env.SAP_BASE_URL}/oauth/authorize`);
+    const url = new URL(`${integration.base_url}/oauth/authorize`);
     url.search = new URLSearchParams(params).toString();
 
     OAuthStateStore.addState(state, {
-      system: "SAP",
+      system: "sap",
       companyId,
     });
 
@@ -43,20 +44,29 @@ export class OAuthService {
     callbackUrl: string
   ): Promise<Result<any, CallbackError>> {
 
-    if (!OAuthStateStore.isValidState(state)) {
+    const stateData = OAuthStateStore.getData(state);
+
+    if (!stateData) {
+      return Result.error("INVALID_STATE");
+    }
+
+    const { companyId } = stateData;
+
+    const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, "sap");
+    if (!integration) {
       return Result.error("INVALID_STATE");
     }
 
     try {
-      const tokenUrl = `${process.env.SAP_BASE_URL}/oauth/token`;
+      const tokenUrl = `${integration.base_url}/oauth/token`;
 
       const response = await axios.post(
         tokenUrl,
         new URLSearchParams({
           grant_type: "authorization_code",
           code,
-          client_id: process.env.SAP_CLIENT_ID!,
-          client_secret: process.env.SAP_CLIENT_SECRET!,
+          client_id: integration.client_id,
+          client_secret: integration.client_secret,
           redirect_uri: callbackUrl,
         }).toString(),
         {
@@ -75,27 +85,28 @@ export class OAuthService {
 
   public static async getOracleRedirectURL(
     callbackUrl: string,
-    companyId: string
+    companyId: number
   ): Promise<Result<string, GetRedirectError>> {
 
-    if (!process.env.ORACLE_BASE_URL || !process.env.ORACLE_CLIENT_ID) {
-      return Result.error("INVALID_CONFIG");
+    const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, "oracle");
+    if(!integration) {
+      throw new Error("Integration Not Found!");
     }
 
     const state = randomUUID();
 
     const params = {
       response_type: "code",
-      client_id: process.env.ORACLE_CLIENT_ID!,
+      client_id: integration.client_id,
       redirect_uri: callbackUrl,
       state,
     };
 
-    const url = new URL(`${process.env.ORACLE_BASE_URL}/oauth2/v1/authorize`);
+    const url = new URL(`${integration.base_url}/oauth2/v1/authorize`);
     url.search = new URLSearchParams(params).toString();
 
     OAuthStateStore.addState(state, {
-      system: "ORACLE",
+      system: "oracle",
       companyId,
     });
 
@@ -108,20 +119,29 @@ export class OAuthService {
     callbackUrl: string
   ): Promise<Result<any, CallbackError>> {
 
-    if (!OAuthStateStore.isValidState(state)) {
+    const stateData = OAuthStateStore.getData(state);
+
+    if (!stateData) {
+      return Result.error("INVALID_STATE");
+    }
+
+    const { companyId } = stateData;
+
+    const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, "oracle");
+    if(!integration) {
       return Result.error("INVALID_STATE");
     }
 
     try {
-      const tokenUrl = `${process.env.ORACLE_BASE_URL}/oauth2/v1/token`;
+      const tokenUrl = `${integration.base_url}/oauth2/v1/token`;
 
       const response = await axios.post(
         tokenUrl,
         new URLSearchParams({
           grant_type: "authorization_code",
           code,
-          client_id: process.env.ORACLE_CLIENT_ID!,
-          client_secret: process.env.ORACLE_CLIENT_SECRET!,
+          client_id: integration.client_id,
+          client_secret: integration.client_secret,
           redirect_uri: callbackUrl,
         }).toString(),
         {
