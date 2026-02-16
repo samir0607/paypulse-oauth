@@ -10,6 +10,24 @@ export default class OAuthController {
     return `${process.env.CURRENT_URL}/auth/${provider}/callback`;
   }
 
+  public static async status(req: Request, res: Response) {
+    try {
+      const provider = req.params.provider as Provider;
+      const companyId = Number(req.query.companyId);
+
+      const connected = await OAuthService.getStatus(
+        provider,
+        companyId
+      );
+
+      ResponseHandler.sendSuccessResponse(res, "Status fetched", {
+        connected,
+      });
+
+    } catch (e) {
+      ErrorHandler(e, res);
+    }
+  }
   public static async integrate(req: Request, res: Response) {
     try {
       const provider = req.params.provider as Provider;

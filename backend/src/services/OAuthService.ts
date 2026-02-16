@@ -21,6 +21,11 @@ const providerConfig: Record<Provider, { authorizePath: string; tokenPath: strin
 };
 
 export class OAuthService {
+  static async getStatus(provider: Provider, companyId: number) {
+    const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, provider);
+    return !!integration;
+  }
+
   public static async integrate(provider: Provider, company_id: number, client_id: string, client_secret: string, base_url: string) {
     await IntegrationRepository.createIntegration({
       company_id,

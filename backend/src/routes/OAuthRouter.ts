@@ -6,5 +6,6 @@ const OAuthRouter = Router();
 OAuthRouter.post("/:provider/integrate", OAuthController.integrate);
 OAuthRouter.get("/:provider/auth-url", OAuthController.getAuthUrl);
 OAuthRouter.get("/:provider/callback", OAuthController.callback);
+OAuthRouter.get("/:provider/status", OAuthController.status);
 
 export default OAuthRouter;
