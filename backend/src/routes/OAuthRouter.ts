@@ -8,3 +8,6 @@ OAuthRouter.get("/oracle/url", OAuthController.getOracleAuthUrl);
 
 OAuthRouter.get("/sap/callback", OAuthController.sapCallback);
 OAuthRouter.get("/oracle/callback", OAuthController.oracleCallback);
+
+OAuthRouter.post("/sap/integrate", OAuthController.integrateSAP);
+OAuthRouter.post("/oracle/integrate", OAuthController.integrateOracle);

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { OAuthService } from "../services/OAuthService";
 import ErrorHandler from "../handler/ErrorHandler";
 import { ResponseHandler } from "../handler/ResponseHandler";
+import { IntegrationRepository } from "../db/repository/IntegrationRepository";
 
 
 export default class OAuthController {
@@ -43,6 +44,25 @@ export default class OAuthController {
 
     } catch (err) {
       ErrorHandler(err, res);
+    }
+  }
+
+  public static async integrateSAP(req: Request, res: Response) {
+    try {
+      const { companyId, client_id, client_secret, base_url } = req.body;
+      if(!companyId || !client_id || !client_secret || !base_url) {
+        throw new Error("companyId or client_id or client_secret or base_url is missing")
+      }
+      await IntegrationRepository.createIntegration({
+        company_id: companyId,
+        type: "sap",
+        client_id,
+        client_secret,
+        base_url
+      });
+      ResponseHandler.sendSuccessResponse(res, "SAP credentials inserted");
+    } catch(error) {
+      ErrorHandler(error, res);
     }
   }
 
@@ -88,4 +108,22 @@ export default class OAuthController {
     }
   }
 
+  public static async integrateOracle(req: Request, res: Response) {
+    try {
+      const { companyId, client_id, client_secret, base_url } = req.body;
+      if(!companyId || !client_id || !client_secret || !base_url) {
+        throw new Error("companyId or client_id or client_secret or base_url is missing")
+      }
+      await IntegrationRepository.createIntegration({
+        company_id: companyId,
+        type: "oracle",
+        client_id,
+        client_secret,
+        base_url
+      });
+      ResponseHandler.sendSuccessResponse(res, "SAP credentials inserted");
+    } catch(error) {
+      ErrorHandler(error, res);
+    }
+  }
 }
