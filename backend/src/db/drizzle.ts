@@ -10,7 +10,7 @@ const pool = createPool({
 });
 
 if(pool) console.log("Connected to database");
-else console.log("Can't connect");
+else console.log("Can't connect to database");
 
 export const db = drizzle(pool);
 
