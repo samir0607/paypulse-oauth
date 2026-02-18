@@ -1,24 +1,18 @@
 import { Request, Response } from "express";
-import { OAuthService } from "../services/OAuthService";
+import { MultiOAuthService } from "../services/MultiOAuthService";
 import ErrorHandler from "../handler/ErrorHandler";
 import { ResponseHandler } from "../handler/ResponseHandler";
 
 type Provider = "sap" | "oracle";
 
-export default class OAuthController {
-  private static getCallback(provider: Provider) {
-    return `${process.env.CURRENT_URL}/auth/${provider}/callback`;
-  }
+export class MultiOAuthController {
 
   public static async status(req: Request, res: Response) {
     try {
       const provider = req.params.provider as Provider;
       const companyId = Number(req.query.companyId);
 
-      const connected = await OAuthService.getStatus(
-        provider,
-        companyId
-      );
+      const connected = await MultiOAuthService.getStatus(provider, companyId);
 
       ResponseHandler.sendSuccessResponse(res, "Status fetched", {
         connected,
@@ -28,6 +22,7 @@ export default class OAuthController {
       ErrorHandler(e, res);
     }
   }
+
   public static async integrate(req: Request, res: Response) {
     try {
       const provider = req.params.provider as Provider;
@@ -37,7 +32,7 @@ export default class OAuthController {
         throw new Error("Missing required integration fields");
       }
 
-      await OAuthService.integrate(
+      await MultiOAuthService.integrate(
         provider,
         companyId,
         client_id,
@@ -61,9 +56,9 @@ export default class OAuthController {
 
       if (!companyId) throw new Error("companyId missing");
 
-      const callback = this.getCallback(provider);
+      const callback = `${process.env.CURRENT_URL}/auth/${provider}/callback`;
 
-      const result = await OAuthService.getRedirectURL(
+      const result = await MultiOAuthService.getRedirectURL(
         provider,
         callback,
         companyId,
@@ -86,9 +81,9 @@ export default class OAuthController {
 
       if (!code || !state) throw new Error("Missing code/state");
 
-      const callback = this.getCallback(provider);
+      const callback = `${process.env.CURRENT_URL}/auth/${provider}/callback`;
 
-      const result = await OAuthService.handleCallback(
+      const result = await MultiOAuthService.handleCallback(
         provider,
         code as string,
         state as string,

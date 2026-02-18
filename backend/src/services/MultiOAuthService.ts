@@ -20,7 +20,7 @@ const providerConfig: Record<Provider, { authorizePath: string; tokenPath: strin
   },
 };
 
-export class OAuthService {
+export class MultiOAuthService {
   static async getStatus(provider: Provider, companyId: number) {
     const integration = await IntegrationRepository.getIntegrationByCompanyIdAndType(companyId, provider);
     return !!integration;
